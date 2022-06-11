@@ -512,8 +512,669 @@ Gur Telem (206631848) and Amit Inbar (315836569)
 Backpatching
 \end_layout
 
+\begin_layout Subsection
+Suggest IR with the backpatching method
+\end_layout
+
 \begin_layout Standard
-sdf
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+superLoop:
+\end_layout
+
+\begin_layout Plain Layout
+
+	if B = 0 goto labelL2
+\end_layout
+
+\begin_layout Plain Layout
+
+	if L1[0] = 0 goto next
+\end_layout
+
+\begin_layout Plain Layout
+
+	if L1[1] = 0 goto next
+\end_layout
+
+\begin_layout Plain Layout
+
+	...
+\end_layout
+
+\begin_layout Plain Layout
+
+	if L1[n] = 0 goto next
+\end_layout
+
+\begin_layout Plain Layout
+
+	goto doAction
+\end_layout
+
+\begin_layout Plain Layout
+
+labelL2:
+\end_layout
+
+\begin_layout Plain Layout
+
+	if L2[0] = 0 goto next
+\end_layout
+
+\begin_layout Plain Layout
+
+	if L2[1] = 0 goto next
+\end_layout
+
+\begin_layout Plain Layout
+
+	...
+\end_layout
+
+\begin_layout Plain Layout
+
+	if L2[n] = 0 goto next
+\end_layout
+
+\begin_layout Plain Layout
+
+doAction:
+\end_layout
+
+\begin_layout Plain Layout
+
+	S1
+\end_layout
+
+\begin_layout Plain Layout
+
+	goto superLoop
+\end_layout
+
+\begin_layout Plain Layout
+
+next:
+\end_layout
+
+\begin_layout Plain Layout
+
+....
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Suggest IR except that the B after the super-loop will only be calculated
+ once
+\end_layout
+
+\begin_layout Standard
+Note that we were not required to use backpatching so we can fairly easily
+ duplicate the code of 
+\begin_inset listings
+inline true
+status open
+
+\begin_layout Plain Layout
+
+S1
+\end_layout
+
+\end_inset
+
+ to avoid re-calculation of where to jump at the end of 
+\begin_inset listings
+inline true
+status open
+
+\begin_layout Plain Layout
+
+S1
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Also note that it wasn't required to give an optimized solution so there's
+ no problem duplicating the code of 
+\begin_inset listings
+inline true
+status open
+
+\begin_layout Plain Layout
+
+S1
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+superLoop:
+\end_layout
+
+\begin_layout Plain Layout
+
+	if B = 0 goto labelL2
+\end_layout
+
+\begin_layout Plain Layout
+
+labelL1:
+\end_layout
+
+\begin_layout Plain Layout
+
+	if L1[0] = 0 goto next
+\end_layout
+
+\begin_layout Plain Layout
+
+	if L1[1] = 0 goto next
+\end_layout
+
+\begin_layout Plain Layout
+
+	...
+\end_layout
+
+\begin_layout Plain Layout
+
+	if L1[n] = 0 goto next
+\end_layout
+
+\begin_layout Plain Layout
+
+	S1
+\end_layout
+
+\begin_layout Plain Layout
+
+	goto labelL1
+\end_layout
+
+\begin_layout Plain Layout
+
+labelL2:
+\end_layout
+
+\begin_layout Plain Layout
+
+	if L2[0] = 0 goto next
+\end_layout
+
+\begin_layout Plain Layout
+
+	if L2[1] = 0 goto next
+\end_layout
+
+\begin_layout Plain Layout
+
+	...
+\end_layout
+
+\begin_layout Plain Layout
+
+	if L2[n] = 0 goto next
+\end_layout
+
+\begin_layout Plain Layout
+
+	S1
+\end_layout
+
+\begin_layout Plain Layout
+
+	goto labelL2
+\end_layout
+
+\begin_layout Plain Layout
+
+next:
+\end_layout
+
+\begin_layout Plain Layout
+
+....
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Write translation scheme using the backpatching method for the IR you suggested
+ from section 1.1 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="9" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="27text%">
+<column alignment="center" valignment="top" width="70text%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+production
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+semantic action
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline true
+status open
+
+\begin_layout Plain Layout
+
+S -> super-loop ML1 B @ L1 MG1 @ ML2 L2 ML3 S1 MG2
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+S.next = freshLabel();
+\end_layout
+
+\begin_layout Plain Layout
+
+backpatch(L1.falseList, S.next);
+\end_layout
+
+\begin_layout Plain Layout
+
+backpatch(L2.falseList, S.next);
+\end_layout
+
+\begin_layout Plain Layout
+
+backpatch(B.falseList, ML2.label);
+\end_layout
+
+\begin_layout Plain Layout
+
+backpatch(MG1.gotoList, ML3.label);
+\end_layout
+
+\begin_layout Plain Layout
+
+backpatch(MG2.gotoList, ML1.label);
+\end_layout
+
+\begin_layout Plain Layout
+
+emit(S.next ':');
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline true
+status open
+
+\begin_layout Plain Layout
+
+L -> L1 B
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+L.falseList = L1.falseList ++ B.falseList;
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline true
+status open
+
+\begin_layout Plain Layout
+
+L -> B
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+L.falseList = B.falseList;
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline true
+status open
+
+\begin_layout Plain Layout
+
+B -> id
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\begin_inset listings
+inline true
+status open
+
+\begin_layout Plain Layout
+
+B.falseList = [nextInstr];
+\end_layout
+
+\begin_layout Plain Layout
+
+emit('if' id.name '=' '0' 'goto _');
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline true
+status open
+
+\begin_layout Plain Layout
+
+B -> 0
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\begin_inset listings
+inline true
+status open
+
+\begin_layout Plain Layout
+
+emit('goto _');
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline true
+status open
+
+\begin_layout Plain Layout
+
+B -> 1
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline true
+status open
+
+\begin_layout Plain Layout
+
+// Nothing here
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $MG\ra\eps$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+MG.gotoList = [nextInstr];
+\end_layout
+
+\begin_layout Plain Layout
+
+emit('goto _');
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $ML\ra\eps$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+ML.label = freshLabel();
+\end_layout
+
+\begin_layout Plain Layout
+
+emit(ML.label ':');
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
